@@ -1,18 +1,35 @@
 import 'package:flutter/material.dart';
-import '../models/cart_item.dart'; // Ensure this import
+import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import '../models/product.dart';
 import '../widgets/product_card.dart';
 
+/// Women's products screen.
 class WomenScreen extends StatelessWidget {
   const WomenScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final womenProducts = sampleProducts.where((p) => p.category == 'Women').toList();
-    return GridView.builder(
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 2, childAspectRatio: 0.75),
-      padding: const EdgeInsets.all(10),
-      itemCount: womenProducts.length,
-      itemBuilder: (ctx, i) => ProductCard(product: womenProducts[i]),
+    final products = sampleProducts.where((p) => p.category == 'Women').toList();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Women\'s Collection')),
+      body: AnimationLimiter(
+        child: GridView.builder(
+          padding: const EdgeInsets.all(12),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            childAspectRatio: 0.65,
+            crossAxisSpacing: 8,
+            mainAxisSpacing: 8,
+          ),
+          itemCount: products.length,
+          itemBuilder: (ctx, i) => AnimationConfiguration.staggeredGrid(
+            position: i,
+            columnCount: 2,
+            duration: const Duration(milliseconds: 500),
+            child: ScaleAnimation(child: FadeInAnimation(child: ProductCard(product: products[i]))),
+          ),
+        ),
+      ),
     );
   }
 }
