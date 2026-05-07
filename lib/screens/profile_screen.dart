@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../providers/theme_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_animations.dart';
 import 'order_history_screen.dart';
 import 'wishlist_screen.dart';
 
-/// Profile screen with user info, theme toggle, and navigation links.
+/// Profile screen with user info from Firestore, theme toggle, and navigation links.
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
 
     return SingleChildScrollView(
       child: Column(
@@ -44,14 +46,14 @@ class ProfileScreen extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 14),
-                const Text(
-                  'User Name',
-                  style: TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
+                Text(
+                  auth.userName ?? 'User Name',
+                  style: const TextStyle(color: Colors.white, fontSize: 22, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 4),
-                const Text(
-                  'user@email.com',
-                  style: TextStyle(color: Colors.white54, fontSize: 14),
+                Text(
+                  auth.userEmail ?? 'user@email.com',
+                  style: const TextStyle(color: Colors.white54, fontSize: 14),
                 ),
               ],
             ),

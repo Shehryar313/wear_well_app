@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "333950197759",
+    "project_id": "wearwell-74b9e",
+    "storage_bucket": "wearwell-74b9e.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333950197759:android:139b9078bcc5cb57b091ca",
+        "android_client_info": {
+          "package_name": "com.example.wear_well_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAZmZtGVrxvxztY0srUBfJOVYBrYal4rNg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -5,6 +5,7 @@ import '../providers/order_provider.dart';
 import '../theme/app_theme.dart';
 
 /// Checkout screen with address form validation, coupon, payment selection.
+/// Orders are saved to Firestore under the logged-in user.
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -30,7 +31,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     super.dispose();
   }
 
-  void _placeOrder() {
+  Future<void> _placeOrder() async {
     if (!_formKey.currentState!.validate()) return;
 
     final cart = Provider.of<CartProvider>(context, listen: false);
@@ -38,7 +39,14 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
     final total = cart.totalAmount - discount;
     final address = '${_addressController.text}, ${_cityController.text}';
 
-    orderProvider.placeOrder(cart.items, total, address);
+    // Save order to Firestore under the logged-in user
+    await orderProvider.placeOrder(
+      cart.items,
+      total,
+      address,
+      phone: _phoneController.text,
+      paymentMethod: paymentMethod,
+    );
     cart.clearCart();
 
     setState(() => _orderPlaced = true);
@@ -75,6 +83,8 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               const Text('Order Placed!', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
               const Text('Thank you for shopping with Wear-Well', style: TextStyle(color: Colors.white54)),
+              const SizedBox(height: 4),
+              const Text('Your order has been saved to your account', style: TextStyle(color: AppColors.gold, fontSize: 12)),
             ],
           ),
         ),

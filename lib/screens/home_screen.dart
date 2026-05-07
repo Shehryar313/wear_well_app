@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/wishlist_provider.dart';
+import '../providers/order_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_animations.dart';
 import 'home_tab.dart';
@@ -35,6 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final cart = Provider.of<CartProvider>(context);
+    final auth = Provider.of<AuthProvider>(context);
 
     return Scaffold(
       appBar: AppBar(
@@ -61,7 +65,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      drawer: _buildDrawer(context),
+      drawer: _buildDrawer(context, auth),
       body: IndexedStack(
         index: _currentIndex,
         children: _screens,
@@ -88,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDrawer(BuildContext context) {
+  Widget _buildDrawer(BuildContext context, AuthProvider auth) {
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -101,18 +105,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 end: Alignment.bottomRight,
               ),
             ),
-            child: const Column(
+            child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                CircleAvatar(
+                const CircleAvatar(
                   radius: 32,
                   backgroundColor: AppColors.gold,
                   child: Icon(Icons.person, size: 32, color: Colors.black),
                 ),
-                SizedBox(height: 12),
-                Text('Welcome User', style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600)),
-                Text('user@email.com', style: TextStyle(color: Colors.white54, fontSize: 13)),
+                const SizedBox(height: 12),
+                Text(
+                  'Welcome ${auth.userName ?? 'User'}',
+                  style: const TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  auth.userEmail ?? 'user@email.com',
+                  style: const TextStyle(color: Colors.white54, fontSize: 13),
+                ),
               ],
             ),
           ),
@@ -145,6 +155,11 @@ class _HomeScreenState extends State<HomeScreen> {
             leading: const Icon(Icons.logout_rounded, color: AppColors.error),
             title: const Text('Logout'),
             onTap: () {
+              // Clear all user-specific data
+              auth.logout();
+              Provider.of<WishlistProvider>(context, listen: false).clearUser();
+              Provider.of<OrderProvider>(context, listen: false).clearUser();
+              Provider.of<CartProvider>(context, listen: false).clearCart();
               Navigator.pushReplacement(context, fadeRoute(const LoginScreen()));
             },
           ),

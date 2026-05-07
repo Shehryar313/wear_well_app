@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../providers/wishlist_provider.dart';
+import '../providers/order_provider.dart';
 import '../theme/app_theme.dart';
 import '../utils/app_animations.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
 import 'forgot_password_screen.dart';
 
-/// Login screen with Form validation.
-/// Concepts: GlobalKey<FormState>, TextFormField, validator, StatefulWidget.
+/// Login screen with Form validation and Firestore authentication.
+/// Concepts: GlobalKey<FormState>, TextFormField, validator, StatefulWidget,
+/// Firestore query for login comparison.
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -31,9 +36,35 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _login() {
+  Future<void> _login() async {
     // Validate the form before proceeding
-    if (_formKey.currentState!.validate()) {
+    if (!_formKey.currentState!.validate()) return;
+
+    debugPrint('LoginScreen: Starting login for ${_emailController.text}');
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final error = await auth.login(
+      _emailController.text,
+      _passController.text,
+    );
+
+    if (!mounted) return;
+
+    if (error != null) {
+      debugPrint('LoginScreen: Login failed with error: $error');
+      // Show error from Firestore
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: AppColors.error),
+      );
+    } else {
+      debugPrint('LoginScreen: Login successful, initializing providers...');
+      // Login successful — load user-specific data
+      final userId = auth.userId!;
+      await Provider.of<WishlistProvider>(context, listen: false).setUser(userId);
+      await Provider.of<OrderProvider>(context, listen: false).setUser(userId);
+
+      if (!mounted) return;
+
+      debugPrint('LoginScreen: All ready, navigating to HomeScreen');
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Login Successful ✓')),
       );
@@ -43,6 +74,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -144,10 +177,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 10),
 
                     // ── Login Button ──
-                    ElevatedButton(
-                      onPressed: _login,
-                      child: const Text('LOGIN'),
-                    ),
+                    auth.isLoading
+                        ? const CircularProgressIndicator(color: AppColors.gold)
+                        : ElevatedButton(
+                            onPressed: _login,
+                            child: const Text('LOGIN'),
+                          ),
                     const SizedBox(height: 20),
 
                     // ── Register Link ──

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+import '../providers/product_provider.dart';
 import 'login_screen.dart';
 
 /// Animated splash screen — app entry point.
 /// Concepts: AnimatedOpacity, AnimatedScale (implicit animations), Future.delayed.
+/// Firebase is initialized in main() before this screen loads.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -21,7 +24,12 @@ class _SplashScreenState extends State<SplashScreen> {
     Future.delayed(const Duration(milliseconds: 300), () {
       if (mounted) setState(() => _animate = true);
     });
+
+    // Initialize Database
+    _initDatabase();
+
     // Navigate to Login after 3 seconds
+    // Firebase is already initialized in main(), so we go straight to login
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.pushReplacement(
@@ -36,6 +44,12 @@ class _SplashScreenState extends State<SplashScreen> {
         );
       }
     });
+  }
+
+  Future<void> _initDatabase() async {
+    final productProvider = Provider.of<ProductProvider>(context, listen: false);
+    await productProvider.seedDatabase();
+    await productProvider.fetchProducts();
   }
 
   @override

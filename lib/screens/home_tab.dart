@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:provider/provider.dart';
+import '../providers/product_provider.dart';
 import '../models/product.dart';
 import '../theme/app_theme.dart';
 import '../widgets/product_card.dart';
 import '../utils/app_animations.dart';
 import 'product_details_screen.dart';
+
 
 /// Home tab content — banner, featured products, all products grid.
 class HomeTab extends StatelessWidget {
@@ -12,7 +15,10 @@ class HomeTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final featured = sampleProducts.where((p) => p.isFeatured).toList();
+    final productProvider = Provider.of<ProductProvider>(context);
+    final featured = productProvider.products.where((p) => p.isFeatured).toList();
+    final allProducts = productProvider.products;
+
 
     return SingleChildScrollView(
       child: Column(
@@ -164,7 +170,7 @@ class HomeTab extends StatelessWidget {
                 crossAxisSpacing: 8,
                 mainAxisSpacing: 8,
               ),
-              itemCount: sampleProducts.length,
+              itemCount: allProducts.length,
               itemBuilder: (ctx, i) {
                 return AnimationConfiguration.staggeredGrid(
                   position: i,
@@ -172,11 +178,12 @@ class HomeTab extends StatelessWidget {
                   duration: const Duration(milliseconds: 500),
                   child: ScaleAnimation(
                     child: FadeInAnimation(
-                      child: ProductCard(product: sampleProducts[i]),
+                      child: ProductCard(product: allProducts[i]),
                     ),
                   ),
                 );
               },
+
             ),
           ),
           const SizedBox(height: 20),

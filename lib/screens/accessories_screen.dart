@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_animations/flutter_staggered_animations.dart';
+import 'package:provider/provider.dart';
+import '../providers/product_provider.dart';
 import '../models/product.dart';
 import '../widgets/product_card.dart';
 
@@ -9,7 +11,9 @@ class AccessoriesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final products = sampleProducts.where((p) => p.category == 'Accessories').toList();
+    final productProvider = Provider.of<ProductProvider>(context);
+    final products = productProvider.getProductsByCategory('Accessories');
+
     return Scaffold(
       appBar: AppBar(title: const Text('Accessories')),
       body: AnimationLimiter(

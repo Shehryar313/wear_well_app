@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
 import '../theme/app_theme.dart';
 
-/// Register screen with full form validation.
-/// Concepts: TextFormField, validator, confirm password matching, dispose().
+/// Register screen with full form validation and Firestore registration.
+/// Concepts: TextFormField, validator, confirm password matching, dispose(),
+/// Firestore user creation.
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -27,10 +30,27 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _register() {
-    if (_formKey.currentState!.validate()) {
+  Future<void> _register() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    final error = await auth.register(
+      _nameController.text,
+      _emailController.text,
+      _passController.text,
+    );
+
+    if (!mounted) return;
+
+    if (error != null) {
+      // Show error from Firestore
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Registration Successful ✓')),
+        SnackBar(content: Text(error), backgroundColor: AppColors.error),
+      );
+    } else {
+      // Registration successful
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Registration Successful ✓ Please login.')),
       );
       Navigator.pop(context);
     }
@@ -38,6 +58,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthProvider>(context);
+
     return Scaffold(
       body: Container(
         width: double.infinity,
@@ -163,10 +185,12 @@ class _RegisterScreenState extends State<RegisterScreen> {
                     const SizedBox(height: 30),
 
                     // ── Register Button ──
-                    ElevatedButton(
-                      onPressed: _register,
-                      child: const Text('CREATE ACCOUNT'),
-                    ),
+                    auth.isLoading
+                        ? const CircularProgressIndicator(color: AppColors.gold)
+                        : ElevatedButton(
+                            onPressed: _register,
+                            child: const Text('CREATE ACCOUNT'),
+                          ),
                     const SizedBox(height: 16),
 
                     // ── Back to Login ──

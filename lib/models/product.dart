@@ -23,6 +23,38 @@ class Product {
     this.rating = 4.0,
     this.isFeatured = false,
   });
+
+  /// Converts this product to a Firestore-compatible map.
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+      'name': name,
+      'price': price,
+      'category': category,
+      'description': description,
+      'sizes': sizes,
+      'colors': colors,
+      'imageUrl': imageUrl,
+      'rating': rating,
+      'isFeatured': isFeatured,
+    };
+  }
+
+  /// Creates a Product from a Firestore document map.
+  factory Product.fromMap(Map<String, dynamic> map) {
+    return Product(
+      id: map['id'] ?? '',
+      name: map['name'] ?? '',
+      price: (map['price'] ?? 0).toDouble(),
+      category: map['category'] ?? '',
+      description: map['description'] ?? '',
+      sizes: List<String>.from(map['sizes'] ?? []),
+      colors: List<String>.from(map['colors'] ?? []),
+      imageUrl: map['imageUrl'] ?? '',
+      rating: (map['rating'] ?? 4.0).toDouble(),
+      isFeatured: map['isFeatured'] ?? false,
+    );
+  }
 }
 
 /// Sample product catalog — Pakistani fashion with prices in PKR.
