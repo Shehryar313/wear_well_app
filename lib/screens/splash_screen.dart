@@ -48,8 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> _initDatabase() async {
     final productProvider = Provider.of<ProductProvider>(context, listen: false);
-    await productProvider.seedDatabase();
-    await productProvider.fetchProducts();
+    await productProvider.reseedDatabase();
   }
 
   @override

@@ -12,6 +12,10 @@ class AuthProvider with ChangeNotifier {
   String? _userName;
   String? _userEmail;
   bool _isLoading = false;
+  bool _isAdmin = false;
+
+  static const String adminEmail = 'admin@wearwell.com';
+  static const String adminPassword = 'admin123456';
 
   /// Current user's Firestore document ID.
   String? get userId => _userId;
@@ -25,8 +29,11 @@ class AuthProvider with ChangeNotifier {
   /// Whether an auth operation is in progress.
   bool get isLoading => _isLoading;
 
+  /// Whether the logged-in user is an admin.
+  bool get isAdmin => _isAdmin;
+
   /// Whether a user is currently logged in.
-  bool get isLoggedIn => _userId != null;
+  bool get isLoggedIn => _userId != null || _isAdmin;
 
   // ── Helpers ──
 
@@ -87,7 +94,20 @@ class AuthProvider with ChangeNotifier {
   Future<String?> login(String email, String password) async {
     debugPrint('AuthProvider: Starting login for $email');
     _isLoading = true;
+    _isAdmin = false;
     notifyListeners();
+
+    // Check for hardcoded admin credentials
+    if (email.toLowerCase().trim() == adminEmail && password == adminPassword) {
+      debugPrint('AuthProvider: Admin login successful');
+      _isAdmin = true;
+      _userId = 'admin_id';
+      _userName = 'System Admin';
+      _userEmail = adminEmail;
+      _isLoading = false;
+      notifyListeners();
+      return null;
+    }
 
     try {
       debugPrint('AuthProvider: Fetching user document...');
@@ -137,6 +157,7 @@ class AuthProvider with ChangeNotifier {
     _userId = null;
     _userName = null;
     _userEmail = null;
+    _isAdmin = false;
     notifyListeners();
   }
 }

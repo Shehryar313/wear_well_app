@@ -62,4 +62,33 @@ class ProductProvider with ChangeNotifier {
       debugPrint('Error seeding database: $e');
     }
   }
+
+  /// Force re-seeds all products (deletes existing + re-uploads sampleProducts).
+  /// Call this once whenever the local sampleProducts list is updated.
+  Future<void> reseedDatabase() async {
+    try {
+      debugPrint('Re-seeding database with updated products...');
+
+      // Delete all existing product documents
+      final existing = await _db.collection('products').get();
+      final deleteBatch = _db.batch();
+      for (final doc in existing.docs) {
+        deleteBatch.delete(doc.reference);
+      }
+      await deleteBatch.commit();
+
+      // Upload all products from sampleProducts
+      final addBatch = _db.batch();
+      for (var product in sampleProducts) {
+        final docRef = _db.collection('products').doc(product.id);
+        addBatch.set(docRef, product.toMap());
+      }
+      await addBatch.commit();
+
+      debugPrint('Re-seeding complete! ${sampleProducts.length} products uploaded.');
+      await fetchProducts();
+    } catch (e) {
+      debugPrint('Error re-seeding database: $e');
+    }
+  }
 }

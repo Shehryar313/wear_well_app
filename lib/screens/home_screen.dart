@@ -142,14 +142,15 @@ class _HomeScreenState extends State<HomeScreen> {
               Navigator.push(context, fadeRoute(const WishlistScreen()));
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.admin_panel_settings_rounded, color: AppColors.gold),
-            title: const Text('Admin Panel'),
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.push(context, fadeRoute(const AdminScreen()));
-            },
-          ),
+          if (auth.isAdmin)
+            ListTile(
+              leading: const Icon(Icons.admin_panel_settings_rounded, color: AppColors.gold),
+              title: const Text('Admin Panel'),
+              onTap: () {
+                Navigator.pop(context);
+                Navigator.push(context, fadeRoute(const AdminScreen()));
+              },
+            ),
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout_rounded, color: AppColors.error),
